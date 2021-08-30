@@ -7,20 +7,41 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r}
+
+```r
 ## Loading dependent libraries
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(tidyr)
 ## Reading the files
 act_df <- read.csv(unzip('activity.zip'))
 ## Converting the date field
 act_df$date <- as.Date(act_df$date,format="%Y-%m-%d")
-
 ```
 
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 ##Aggreeate by date
 act_df_agg <- act_df %>%
   group_by(date) %>%
@@ -47,8 +68,11 @@ text(x = round(mean(act_df_agg$Freq,na.rm = TRUE),2)-3000,                   # A
      cex = 1)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 ## Removing NA's from the steps and replacing by 0
 ##act_df$steps <-  replace_na(act_df$steps,0 )
 
@@ -81,9 +105,12 @@ text(y = max_internval$Freq-20,                   # Add text for Max Average
      cex = 1)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 
 ## Imputing missing values
-```{r}
+
+```r
 ## Merging the Earlier computed Data Frame in Chunck 2 that has mean interval values with original data frame
 
 act_df_new <- merge(x=act_df,y=act_df_agg2,by="interval",all=TRUE)
@@ -92,6 +119,14 @@ act_df_new <- merge(x=act_df,y=act_df_agg2,by="interval",all=TRUE)
 act_df_1 <- mutate(act_df_new,impute_steps = coalesce(steps,Freq))
 ## 1. Finding NA values 
 summary(act_df_1$steps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##    0.00    0.00    0.00   37.38   12.00  806.00    2304
+```
+
+```r
 # NA's   :2304 
 act_df_new <- select(act_df_1, date, impute_steps)
 
@@ -145,12 +180,15 @@ text(x = round(mean(act_df_agg_new$Freq,na.rm = TRUE),2)-3000,                  
      cex = 1)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
 **Do these values differ from the estimates from the first part of the assignment? 
 What is the impact of imputing missing data on the estimates of the total daily number of steps?**
 *A: Yes, there are differences observed between the two histograms, especially with the frequency occurrences on lower spectrum (0-10,000) of steps are changed. We see more frequency occurance when its non imputed on lower histogram categories. There is a sligth increase in the mean and median values but it does not drastically change.*
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 ##Compute a date is Weekend or Weekday
 ##install.packages(timeDate) ## I had to install this via RStudio > tools> Install packages as somehow the package was not getting installed from chunck
 library(timeDate)
@@ -169,17 +207,21 @@ act_df_2$week <- factor(act_df_2$week, levels = c("weekend", "weekday"))
 act_df_avg3 <- act_df_2 %>%
   group_by(week,interval) %>%
   summarise(Freq= mean(impute_steps,na.rm = TRUE)) 
+```
 
+```
+## `summarise()` has grouped output by 'week'. You can override using the `.groups` argument.
+```
 
-
+```r
 library(ggplot2)
 ggplot(act_df_avg3,aes(x=interval,y=Freq)) +
   geom_line(aes(color=week)) +
   ylab("Steps")+
   facet_wrap(~week,ncol=1)
-
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
 
 **The steps peak between the 750th and 1000th Interval for both the Weekends and Weekdays. Also the average of steps performed are more across weekends than Weekdays.** 
